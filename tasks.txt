@@ -33,6 +33,8 @@ Added the eth token address for bsc net.
 Third task, wallet connect on profile page
 https://docs.walletconnect.com/web3modal/react/about?platform=wagmi
 
+cehck walletconnect.png
+
 Not able to complete, wallet connect library cannot be installed on nodejs 16, moving to nodejs 18 also fails due to libraries conflict.
 
 I can complete this but will it will require an overhaul of the whole front end and updating libraries to their latest version as well, which will take a while (2-5 days).
