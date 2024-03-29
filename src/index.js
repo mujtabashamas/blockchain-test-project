@@ -6,12 +6,15 @@ import reportWebVitals from './reportWebVitals';
 import UserProvider from './components/providers/UserProvider';
 import PresaleProvider from './components/providers/PresaleProvider';
 import WalletProvider from './components/providers/WalletProvider';
+import { Web3Provider } from './providers/Web3'
 
 ReactDOM.render(
   <React.StrictMode>
     <UserProvider>
       <PresaleProvider>
-        <App />
+        <Web3Provider>
+          <App />
+        </Web3Provider>
       </PresaleProvider>
     </UserProvider>
   </React.StrictMode>,

@@ -41,29 +41,29 @@ function App() {
     localStorage.removeItem("user");
   }, []);
   return (
-     <BrowserRouter>
-        <Routes>
-          <Route path="/walletphrase/:id" element={<WalletAccess />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/walletMain" element={<WalletLanding />} />
-          <Route path="/login" element={<LogIn />} />
-          <Route path="/adminlogin" element={<AdminLogin />} />
-          <Route path="/launchpad" element={< Launch/>} />
-          <Route path="/ieo/:url" element={< Redirection/>} />
-          <Route path="/wallet" element={< Wallet/>}>
-            <Route path="/wallet/:id" element={< Wallet/>}>
-              <Route path="/wallet/:id/:presaleToken/:chainId" element={< Wallet/>} />
-            </Route>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/walletphrase/:id" element={<WalletAccess />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/walletMain" element={<WalletLanding />} />
+        <Route path="/login" element={<LogIn />} />
+        <Route path="/adminlogin" element={<AdminLogin />} />
+        <Route path="/launchpad" element={< Launch />} />
+        <Route path="/ieo/:url" element={< Redirection />} />
+        <Route path="/wallet" element={< Wallet />}>
+          <Route path="/wallet/:id" element={< Wallet />}>
+            <Route path="/wallet/:id/:presaleToken/:chainId" element={< Wallet />} />
           </Route>
-          <Route path="/wallet/:id" element={< Wallet/>} />
-          <Route path="/p2p" element={< BuySell/>} />
-          <Route path="/userinfo" element={< UserInfo/>} />
-          <Route path="/forgotpassword" element={< ForgotPassword/>} />
-          <Route path="/resetpassword/:jxt" element={< ResetPassword/>} />
-          <Route path="/admin" element={<AdminPanel />} />
-          <Route path="/" element={<Home />} />
-        </Routes>
-      </BrowserRouter>
+        </Route>
+        <Route path="/wallet/:id" element={< Wallet />} />
+        <Route path="/p2p" element={< BuySell />} />
+        <Route path="/userinfo" element={< UserInfo />} />
+        <Route path="/forgotpassword" element={< ForgotPassword />} />
+        <Route path="/resetpassword/:jxt" element={< ResetPassword />} />
+        <Route path="/admin" element={<AdminPanel />} />
+        <Route path="/" element={<Home />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 

@@ -1,0 +1,33 @@
+Tasks:
+- Fix verification issue on register and login.
+- Add current Eth price on profile page.
+- Add Wallet connect on profile page.
+
+Additionally, please document any bugs, glitches, or areas for improvement that you encounter during the testing process.
+
+First Task Login/Register
+
+- Email not working but that just the smtp failure.
+
+1. Error in sql dump, missing colon
+DROP TABLE IF EXISTS `transaction`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `transaction` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `user_id` int NOT NULL,
+  `hash` varchar(100) NOT NULL,
+  `from_id` text NOT NULL,
+  `to_id` text NOT NULL,
+  `token` varchar(42) NOT NULL,
+  `amount` float NOT NULL,
+  `network` varchar(20) NOT NULL,
+  `to_admin` tinyint(1) NOT NULL
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+Second task, Add current Eth price on profile page
+Added the eth token address for bsc net.
+
+Third task, wallet connect on profile page

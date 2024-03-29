@@ -45,7 +45,7 @@ class UserService {
             };
         }
 
-        transport.sendMail(mailOptions, function(error, info){
+        transport.sendMail(mailOptions, function (error, info) {
             if (error) {
                 console.log(error);
             } else {
@@ -57,7 +57,7 @@ class UserService {
     static makeRandomString(length) {
         let result = "";
         let characters = "0123456789";
-        for (let i = 0; i < length; i++ ) {
+        for (let i = 0; i < length; i++) {
             result += characters.charAt(Math.floor(Math.random() * characters.length));
         }
         return result
@@ -65,40 +65,46 @@ class UserService {
 
     static async verifyEmail(email, locale) {
         if (!this.emailValidation(email)) {
-            return {response: false, message: "Email validation failed.", data:null}
+            return { response: false, message: "Email validation failed.", data: null }
         }
         let verificationCode = this.makeRandomString(4);
+        console.log(verificationCode)
 
-        const subject = i18n.__({phrase: "MGL Exchange: Email Verification", locale: locale})
-        const body = i18n.__({phrase: "Your Email verification code is %s", locale: locale}, verificationCode);
+        const subject = i18n.__({ phrase: "MGL Exchange: Email Verification", locale: locale })
+        const body = i18n.__({ phrase: "Your Email verification code is %s", locale: locale }, verificationCode);
         emailService.deliverEmail(email, subject, body)
-        
-        let prev = await EmailVerifyModel.findOne({email:email});
+
+        let prev = await EmailVerifyModel.findOne({ email: email });
+        console.log(1);
         if (prev) {
-            let result = await EmailVerifyModel.update({verify_code:verificationCode}, prev.id);
+            console.log(2);
+            console.log(prev);
+            let result = await EmailVerifyModel.update({ verify_code: verificationCode }, prev.id);
+            console.log(3);
+
             if (!result) {
-                return {response: false, message: "An error was caused during the Email Verification Code generation.", data:null}
+                return { response: false, message: "An error was caused during the Email Verification Code generation.", data: null }
             }
             if (result.error) {
-                return {response: false, message: result.error, data:null}
+                return { response: false, message: result.error, data: null }
             }
         } else {
-            let result = await EmailVerifyModel.create({email:email, verify_code:verificationCode})
+            let result = await EmailVerifyModel.create({ email: email, verify_code: verificationCode })
             if (!result) {
-                return {response: false, message: "An error was caused during the Email Verification Code generation.", data:null}
+                return { response: false, message: "An error was caused during the Email Verification Code generation.", data: null }
             }
             if (result.error) {
-                return {response: false, message: result.error, data:null}
+                return { response: false, message: result.error, data: null }
             }
         }
         console.log(verificationCode)
-        return {response: true, message: "Success. Email Verification Code was send to your Email address.", data:null}
+        return { response: true, message: "Success. Email Verification Code was send to your Email address.", data: null }
     }
 
     static async getAllUsers() {
         let userList = await UserModel.find();
         if (userList.length === 0) {
-            return {response:false, message:"Users not found", data:null}
+            return { response: false, message: "Users not found", data: null }
         }
 
         userList = userList.map(user => {
@@ -106,67 +112,67 @@ class UserService {
             return userWithoutPassword;
         });
 
-        return {response: true, message:"Success", data:userList}
+        return { response: true, message: "Success", data: userList }
     }
 
     static async getUsers(sortBy, pageNumber, itemsPerPage) {
         if (sortBy !== "id" && sortBy !== "email" && sortBy !== "have_wallet" && sortBy !== "wallet_address") {
-            return {response:false, message:"Sorting Error.", data:null};
+            return { response: false, message: "Sorting Error.", data: null };
         }
-        let direction = sortBy === "id" ? "ASC" : "DESC" 
+        let direction = sortBy === "id" ? "ASC" : "DESC"
         let userList = await ManageUserModel.find(sortBy, direction);
         userList = userList.map(user => {
             user.have_wallet === 1 ? user.have_wallet = true : user.have_wallet = false
             return user;
         });
         let userData = userList.slice((pageNumber - 1) * itemsPerPage, pageNumber * itemsPerPage)
-        return {response:true, message:"Success", data:{totalNumber:userList.length, users:userData}}
+        return { response: true, message: "Success", data: { totalNumber: userList.length, users: userData } }
     }
 
     static async getUserById(userId) {
         const user = await UserModel.findOne({ id: userId });
         if (!user) {
-            return {response: false, message:'User not found', data:null}
+            return { response: false, message: 'User not found', data: null }
         }
 
         const { password, ...userWithoutPassword } = user;
 
-        return {response: true, message:"Success", data:userWithoutPassword};
+        return { response: true, message: "Success", data: userWithoutPassword };
     };
 
     static getCurrentUser(currentUser) {
         console.log(currentUser)
         const { password, ...userWithoutPassword } = currentUser;
 
-        return {response:true, message:"Success", data:userWithoutPassword};
+        return { response: true, message: "Success", data: userWithoutPassword };
     };
 
     static async createUser(rawData) {
         const check = this.checkValidation(rawData);
         if (!check) {
-            return {response:false, message:"Send data validation error", data:null}
+            return { response: false, message: "Send data validation error", data: null }
         }
-        const user = await UserModel.findOne({email:rawData.email});
+        const user = await UserModel.findOne({ email: rawData.email });
         if (user) {
-            return {response:false, message:"Already registered user.", data:null}
+            return { response: false, message: "Already registered user.", data: null }
         }
         rawData.password = await this.hashPassword(rawData.password);
         const result = await UserModel.create(rawData);
 
         if (!result) {
-            return {response:false, message:"An error caused during creating new user", data:null}
+            return { response: false, message: "An error caused during creating new user", data: null }
         }
         if (result.error) {
-            return {response:false, message:result.error, data:null}
+            return { response: false, message: result.error, data: null }
         }
-        await ManageUserModel.create({email:rawData.email, have_wallet:false, wallet_address:""});
-        return {response:true, message:"Success", data:null}
+        await ManageUserModel.create({ email: rawData.email, have_wallet: false, wallet_address: "" });
+        return { response: true, message: "Success", data: null }
     };
 
     static async updateUser(rawData, userId) {
         const check = this.checkValidation(rawData);
         if (!check) {
-            return {response:false, message:"Send data validation error", data:null}
+            return { response: false, message: "Send data validation error", data: null }
         }
 
         rawData.password = await this.hashPassword(rawData.password);
@@ -176,95 +182,95 @@ class UserService {
         const result = await UserModel.update(restOfUpdates, userId);
 
         if (!result) {
-            return {response:false, message:"An error caused during updating an exiting user.", data:null}
+            return { response: false, message: "An error caused during updating an exiting user.", data: null }
         }
         if (result.error) {
-            return {response:false, message:result.error, data:null}
+            return { response: false, message: result.error, data: null }
         }
 
-        return { response:true, message:"Successfully updated", data:null };
+        return { response: true, message: "Successfully updated", data: null };
     };
 
     static async updatePassword(rawData, userId) {
-        const user = await UserModel.findOne({id:userId});
+        const user = await UserModel.findOne({ id: userId });
         if (!user) {
-            return {response:false, message:"Unregistered User.", data:null};
+            return { response: false, message: "Unregistered User.", data: null };
         }
         if (user.email !== rawData.email) {
-            return {response:false, message:"Email address is wrong.", data:null};
+            return { response: false, message: "Email address is wrong.", data: null };
         }
         if (rawData.currentPassword) {
             let isMatch = await bcrypt.compare(rawData.currentPassword, user.password);
             if (!isMatch) {
-                return {response:false, message:'Current password is incorrect', data:null};
+                return { response: false, message: 'Current password is incorrect', data: null };
             }
             rawData.password = await this.hashPassword(rawData.password);
-            const result = await UserModel.update({password:rawData.password}, userId);
-        
+            const result = await UserModel.update({ password: rawData.password }, userId);
+
             if (!result) {
-                return {response:false, message:"An error caused during updating your password.", data:null}
+                return { response: false, message: "An error caused during updating your password.", data: null }
             }
             if (result.error) {
-                return {response:false, message:result.error, data:null}
+                return { response: false, message: result.error, data: null }
             }
         } else {
             rawData.password = await this.hashPassword(rawData.password);
-            const result = await UserModel.update({password:rawData.password}, userId);
-        
+            const result = await UserModel.update({ password: rawData.password }, userId);
+
             if (!result) {
-                return {response:false, message:"An error caused during updating your password.", data:null}
+                return { response: false, message: "An error caused during updating your password.", data: null }
             }
             if (result.error) {
-                return {response:false, message:result.error, data:null}
+                return { response: false, message: result.error, data: null }
             }
         }
 
-        return { response:true, message:"Successfully updated", data:null };
+        return { response: true, message: "Successfully updated", data: null };
     }
 
     static async deleteUser(userId) {
         if (userId === 1) {
-            return {response:false, message:"Cannot delete admin user.", data:null}
+            return { response: false, message: "Cannot delete admin user.", data: null }
         }
-        const result = await UserModel.delete({id: userId});
+        const result = await UserModel.delete({ id: userId });
         if (!result) {
-            return {response:false, message:"The user does not exist.", data:null}
+            return { response: false, message: "The user does not exist.", data: null }
         }
         if (result.error) {
-            return {response:false, message:result.error, data:null}
+            return { response: false, message: result.error, data: null }
         }
-        await ManageUserModel.delete({id: userId});
-        await WalletModel.delete({user_id: userId});
+        await ManageUserModel.delete({ id: userId });
+        await WalletModel.delete({ user_id: userId });
 
-        return {response:true, message:"Successfully deleted.", data:null}
+        return { response: true, message: "Successfully deleted.", data: null }
     };
 
     static async signUp(rawData) {
         const check = this.checkValidation(rawData);
         if (!check) {
-            return {response:false, message:"Send data validation error", data:null}
+            return { response: false, message: "Send data validation error", data: null }
         }
         rawData.password = await this.hashPassword(rawData.password);
-        let checker = await UserModel.findOne({email:rawData.email});
+        let checker = await UserModel.findOne({ email: rawData.email });
         if (checker) {
-            return {response:false, message:"This Email already in use", data:null}
+            return { response: false, message: "This Email already in use", data: null }
         }
         //check email verification
-        let verifier = await EmailVerifyModel.findOne({email:rawData.email});
+        let verifier = await EmailVerifyModel.findOne({ email: rawData.email });
         if (!verifier) {
-            return {response:false, message:"Please receive and resend the Email verification code.", data:null}
+            return { response: false, message: "Please receive and resend the Email verification code.", data: null }
         }
         if (verifier.verify_code !== rawData.email_verify) {
-            return {response:false, message:"Email verification code is wrong.", data:null}
+            return { response: false, message: "Email verification code is wrong.", data: null }
         }
         //check invite code
         if (parseInt(rawData.invite_code) !== 0) {
-            let inviter = await UserModel.findOne({id:parseInt(rawData.invite_code)});
+            let inviter = await UserModel.findOne({ id: parseInt(rawData.invite_code) });
             if (!inviter) {
-                return {response:false, message:"Invite code wrong", data:null}
+                return { response: false, message: "Invite code wrong", data: null }
             }
         }
-        
+
         // user register
         rawData.role = Role.General;
         rawData.get_bnb = false;
@@ -272,34 +278,35 @@ class UserService {
 
         const result = await UserModel.create(registerData);
 
+        console.log(result)
         if (!result) {
-            return {response:false, message:"An error was caused during user registeration.", data:null}
+            return { response: false, message: "An error was caused during user registeration.", data: null }
         }
         if (result.error) {
-            return {response:false, message:result.error, data:null}
+            return { response: false, message: result.error, data: null }
         }
 
-        await ManageUserModel.create({email:registerData.email, have_wallet:false, wallet_address:""});
-        const subject = i18n.__({phrase: "MGL Exchange: Account Created Sucessfully", locale: rawData.locale || "En"})
-        const body = i18n.__({phrase: "Your MGL Exchange account has been created sucessfully. Thank you.", locale: rawData.locale || "En"});
+        await ManageUserModel.create({ email: registerData.email, have_wallet: false, wallet_address: "" });
+        const subject = i18n.__({ phrase: "MGL Exchange: Account Created Sucessfully", locale: rawData.locale || "En" })
+        const body = i18n.__({ phrase: "Your MGL Exchange account has been created sucessfully. Thank you.", locale: rawData.locale || "En" });
         emailService.deliverEmail(rawData.email, subject, body);
-        
-        return {response:true, message:"Success", data:null}
+
+        return { response: true, message: "Success", data: null }
     };
 
     static async userLogin(rawData) {
         const check = this.checkValidation(rawData);
         if (!check) {
-            return {response:false, message:"Send data validation error", data:null}
+            return { response: false, message: "Send data validation error", data: null }
         }
         const { email, password: pass } = rawData;
         const user = await UserModel.findOne({ email });
         if (!user) {
-            return {response: false, message:"Unregistered user!", data:null}
+            return { response: false, message: "Unregistered user!", data: null }
         }
         const isMatch = await bcrypt.compare(pass, user.password);
         if (!isMatch) {
-            return {response:false, message:'Incorrect password!', data:null}
+            return { response: false, message: 'Incorrect password!', data: null }
         }
 
         // user matched!
@@ -310,38 +317,38 @@ class UserService {
 
         const { password, ...userInfo } = user;
 
-        let wallets = await WalletModel.find({user_id:user.id});
+        let wallets = await WalletModel.find({ user_id: user.id });
         if (wallets.length === 0) {
-            return {response:true, message:"Success!", data: { userInfo, token, keyPair:null }}
+            return { response: true, message: "Success!", data: { userInfo, token, keyPair: null } }
         }
         let keyPair = [];
-        for (let i = 0; i < wallets.length; i ++) {
+        for (let i = 0; i < wallets.length; i++) {
             let privateKey = new Wallet().encrypt(wallets[i].privatekey)
-            keyPair.push({publicKey: wallets[i].publickey, privateKey: privateKey});
+            keyPair.push({ publicKey: wallets[i].publickey, privateKey: privateKey });
         }
-        return {response:true, message:"Success!", data: { userInfo, token, keyPair:keyPair }}
+        return { response: true, message: "Success!", data: { userInfo, token, keyPair: keyPair } }
     };
 
     static async forgotPassword(rawData) {
         if (!this.emailValidation(rawData.email)) {
-            return {response:false, message:"Email validation failed.", data:null};
+            return { response: false, message: "Email validation failed.", data: null };
         }
-        const user = await UserModel.findOne({email:rawData.email});
+        const user = await UserModel.findOne({ email: rawData.email });
         if (!user) {
-            return {response:false, message:"Unregistered user.", data:false};
+            return { response: false, message: "Unregistered user.", data: false };
         }
         const secretKey = process.env.SECRET_JWT || "";
-        const token = jwt.sign({user_id:user.id.toString()}, secretKey, {
+        const token = jwt.sign({ user_id: user.id.toString() }, secretKey, {
             expiresIn: '2h'
         });
         const link = `${process.env.FRONT_URL}resetpassword/${token}`;
         console.log(link)
 
-        const subject = i18n.__({phrase: "MGL Exchange - Password Reset", locale: rawData.locale || "En"})
-        const body = i18n.__({phrase: "To reset your password, please click on this link: %s", locale: rawData.locale || "En"}, link);
+        const subject = i18n.__({ phrase: "MGL Exchange - Password Reset", locale: rawData.locale || "En" })
+        const body = i18n.__({ phrase: "To reset your password, please click on this link: %s", locale: rawData.locale || "En" }, link);
         emailService.deliverEmail(user.email, subject, body);
 
-        return {response:true, message:"Success. Please check your Email inbox.", data:null};
+        return { response: true, message: "Success. Please check your Email inbox.", data: null };
     }
 
     static checkValidation(data) {
@@ -360,12 +367,11 @@ class UserService {
         }
     }
 
-    
-    static emailValidation(enteredEmail){
+
+    static emailValidation(enteredEmail) {
         var mail_format = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
 
-        if(enteredEmail.match(mail_format))
-        {
+        if (enteredEmail.match(mail_format)) {
             return true;
         } else {
             return false;
