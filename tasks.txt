@@ -31,3 +31,11 @@ Second task, Add current Eth price on profile page
 Added the eth token address for bsc net.
 
 Third task, wallet connect on profile page
+https://docs.walletconnect.com/web3modal/react/about?platform=wagmi
+
+Not able to complete, wallet connect library cannot be installed on nodejs 16, moving to nodejs 18 also fails due to libraries conflict.
+
+I can complete this but will it will require an overhaul of the whole front end and updating libraries to their latest version as well, which will take a while (2-5 days).
+
+There are many outdated and deprecated libraries installed in the front end side, also using react-scripts which is deprecated for a while now, which has the old babel compiler, due to this many new block chain libraries are also not supported.
+Using old libraries also decreases the security risk as many old libraries uses old source code, which is exploited in blockchain environment.
